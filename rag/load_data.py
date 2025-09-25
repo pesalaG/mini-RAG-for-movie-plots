@@ -6,7 +6,7 @@ def load_movie_data(path: str, sample_size: int = None) -> List[Dict]:
     df = pd.read_csv(path, names=[
         "release_year", "title", "origin_ethnicity", "director",
         "cast", "genre", "wiki_page", "plot"
-    ], header=0)  # Use header=0 to skip the first row (existing headers)
+    ], header=0)  
 
     # Select only rows with non-null plots
     df = df.dropna(subset=["plot"])

@@ -34,7 +34,6 @@ def main():
         print("\n" + json.dumps(response, indent=2))
 
         print("Sources:")
-        # sort by score descending
         for i, (doc, score) in enumerate(sorted(docs_with_scores, key=lambda x: x[1], reverse=True), start=1):
             print(f"  {i}. {doc.metadata.get('title', 'Unknown Title')} (score: {score:.4f})")
 

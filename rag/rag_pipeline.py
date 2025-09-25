@@ -16,7 +16,7 @@ def load_rag_pipeline(index_path: str = "faiss_index"):
     if not hf_token:
         raise ValueError("HUGGINGFACEHUB_API_TOKEN not found in .env")
 
-    # Embeddings + FAISS
+    # Embeddings, FAISS
     embeddings = HuggingFaceEmbeddings(model_name="BAAI/bge-base-en-v1.5")
     vectorstore = FAISS.load_local(index_path, embeddings, allow_dangerous_deserialization=True)
 
@@ -50,10 +50,10 @@ def load_rag_pipeline(index_path: str = "faiss_index"):
         "text-generation",
         model=model,
         tokenizer=tokenizer,
-        max_new_tokens=150,         # generate only a short answer
-        temperature=0.0,            # deterministic
-        do_sample=False,            # avoid repetition
-        return_full_text=False,     # don't echo the prompt
+        max_new_tokens=150,         
+        temperature=0.0,            
+        do_sample=False,            
+        return_full_text=False,    
     )
 
     llm = HuggingFacePipeline(pipeline=hf_pipeline)

@@ -45,7 +45,6 @@ def build_faiss_index(data_path: str, save_path: str = "faiss_index", chunk_size
     embedding_model = HuggingFaceEmbeddings(model_name="BAAI/bge-base-en-v1.5")
 
     print("Embedding documents...")
-    # Efficient embedding all at once
     vectors = embedding_model.embed_documents([doc.page_content for doc in docs])
 
     # Create FAISS vectorstore
