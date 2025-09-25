@@ -1,0 +1,7 @@
+venv
+.env
+.venv
+.vscode
+CHECK.ipynb
+rag/__pycache__
+faiss_index

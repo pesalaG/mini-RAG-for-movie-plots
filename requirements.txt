@@ -1,0 +1,10 @@
+langchain
+langchain-community
+faiss-cpu
+transformers
+sentence-transformers
+gpt4all
+pandas
+tqdm
+accelerate 
+bitsandbytes
