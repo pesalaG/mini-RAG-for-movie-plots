@@ -1,23 +1,30 @@
 import os
-import faiss
-from langchain_huggingface import HuggingFaceEmbeddings  # ✅ updated import
-from langchain_community.vectorstores import FAISS
-from langchain.docstore.document import Document
 from tqdm import tqdm
-from .load_data import load_movie_data
+import faiss
+from langchain.docstore.document import Document
 from langchain.text_splitter import RecursiveCharacterTextSplitter
+from langchain_community.embeddings import HuggingFaceEmbeddings
+from langchain_community.vectorstores import FAISS
+from .load_data import load_movie_data
 
-def build_faiss_index(data_path: str, save_path: str = "faiss_index") -> None:
+def build_faiss_index(data_path: str, save_path: str = "faiss_index", chunk_size: int = 500, chunk_overlap: int = 50):
+    """Build FAISS index from movie plots with chunking and efficient embedding."""
+
     print("Loading movie data...")
     movies = load_movie_data(data_path)
     print(f"Loaded {len(movies)} movies")
 
-    text_splitter = RecursiveCharacterTextSplitter(chunk_size=300, chunk_overlap=50)
+    splitter = RecursiveCharacterTextSplitter(
+        chunk_size=chunk_size,
+        chunk_overlap=chunk_overlap
+    )
 
+    # Create documents with chunked plot
     docs = []
-    for movie in tqdm(movies, desc="Creating documents"):
-        splits = text_splitter.split_text(movie["plot"])
-        for chunk in splits:
+    for movie in tqdm(movies, desc="Chunking plots"):
+        text = movie["plot"]
+        chunks = splitter.split_text(text)
+        for chunk in chunks:
             docs.append(Document(
                 page_content=chunk,
                 metadata={
@@ -31,13 +38,25 @@ def build_faiss_index(data_path: str, save_path: str = "faiss_index") -> None:
                 }
             ))
 
+    print(f"Total chunks created: {len(docs)}")
+
+    # Embeddings
     print("Loading embedding model...")
     embedding_model = HuggingFaceEmbeddings(model_name="BAAI/bge-base-en-v1.5")
 
-    print("Building FAISS index...")
-    vectorstore = FAISS.from_documents(docs, embedding_model)
+    print("Embedding documents...")
+    # Efficient embedding all at once
+    vectors = embedding_model.embed_documents([doc.page_content for doc in docs])
 
-    print("Saving index...")
+    # Create FAISS vectorstore
+    vectorstore = FAISS.from_embeddings(
+        text_embeddings=list(zip([doc.page_content for doc in docs], vectors)),
+        embedding=embedding_model,
+        metadatas=[doc.metadata for doc in docs]
+    )
+
+    # Save FAISS index
+    print("Saving FAISS index...")
     vectorstore.save_local(save_path)
     print(f"FAISS index saved to {save_path}")
 
