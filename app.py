@@ -18,12 +18,16 @@ def main():
         docs_with_scores = retriever.vectorstore.similarity_search_with_score(query, k=3)
 
         contexts = [doc.page_content for doc in result['source_documents']]
-        
+        source_titles = [doc.metadata.get("title", "Unknown Title") for doc in result['source_documents']]
+
         # Create the structured response
         response = {
             "answer": result['result'].strip(),
             "contexts": contexts,
-            "reasoning": f"The question asked about {query}. I searched the movie plots database and found relevant information to form the answer."
+            "reasoning": (
+                f"The question asked about '{query}'. I searched the movie plots database and "
+                f"based the answer on the following sources: {', '.join(source_titles)}."
+            )
         }
         
         # Print as formatted JSON-like output
