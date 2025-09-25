@@ -2,7 +2,7 @@ from rag.rag_pipeline import load_rag_pipeline
 import json
 
 def main():
-    print("🚀 Movie RAG System")
+    print("Movie RAG System")
     qa = load_rag_pipeline()
 
     while True:
